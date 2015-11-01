@@ -32,7 +32,7 @@ function warpFor {
 	    if rt > 10000  { set wp to 6. }
 	    if rt > 100000 { set wp to 7. }
 	    if wp <> oldwp or warp <> wp {
-	        local warp to wp.
+	        set warp to wp.
 	        wait 0.1.
 	        if wp <> oldwp or warp <> oldwarp {
 	            print "T+" + round(missiontime) + " Warp " + warp + "/" + wp + ", remaining wait " + round(rt) + "s".

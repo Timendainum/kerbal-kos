@@ -2,7 +2,7 @@
 // mission script
 // ----------------------------------------------------------------------------
 // includes
-run i_bodyProperties.
+run i_bodyproperties.
 run f_equipment.
 run f_info.
 run f_orbit.
@@ -40,12 +40,15 @@ if status = "PRELAUNCH"
 		stage.
 	}
 
+	local radarAltitude to 0.
+	lock radarAltitude to alt:radar.
+
 	// deploy orbital items
-	when alt:radar > ha then {
+	when radarAltitude > ha then {
 		deployFairings().
 	}
 
-	when alt:radar > ha + 1000 then {
+	when radarAltitude > ha + 1000 then {
 		// deploy a1 antennas
     	print "Deploying orbital antenna.".
     	SET antennaList to SHIP:PARTSDUBBED("a1").
@@ -62,9 +65,13 @@ if status = "PRELAUNCH"
 	}
 
 	// execute launch script
-    run z_ltoa(finalOrb).
+    run x_ltoa(finalOrb, 0).
 }
 
 turnToSun().
+
+set throttle to 0.
+
+SAS on.
 
 print "Mission script complete.".

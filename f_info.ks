@@ -13,7 +13,7 @@
 function getSOI {
 	declare parameter bd.
 	// parameter type: body
-	declare sma to (bd:apoapsis + 2*bd:body:radius + bd:periapsis)/2.
+	local sma to (bd:apoapsis + 2*bd:body:radius + bd:periapsis)/2.
 	global gSOI to sma*(bd:mu/bd:body:mu)^0.4.
 	print "T+" + round(missiontime) + " SOI for " + bd:name + ": " + round(soi/1000) + "km".
 }

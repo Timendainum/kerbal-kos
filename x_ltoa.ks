@@ -9,6 +9,8 @@
 @LAZYGLOBAL OFF.
 
 declare parameter orbitAltitude.
+declare parameter orbitHeading.
+
 clearscreen.
 print "Launch to orbit: " + time:calendar + ", " + time:clock.
 print "Desired orbit: " + orbitAltitude + "m".
@@ -42,15 +44,14 @@ stage.
 local pitch to 0.
 
 until altitude > ha or apoapsis > orbitAltitude {
-    set ar to alt:radar.
-    local pitch.
+    local ar to alt:radar.
 
     // perform gravity turn between gt0 and gt1
     if ar > gt0 and ar < gt1 {
         local arr to (ar - gt0) / (gt1 - gt0).
         local pda to (cos(arr * 180) + 1) / 2.
-        set pitch to pitch1 * ( pda - 1 ).
-        lock steering to up + R(0, pitch, -180).
+        set pitch to 90 * ( pda - 1 ).
+        lock steering to up + R(orbitHeading, pitch, -180).
         print "pitch: " + round(90+pitch) + "  " at (20,33).
     }
 
@@ -71,16 +72,17 @@ until altitude > ha or apoapsis > orbitAltitude {
     // calculate target velocity
     local vl to maxq*0.9.
     local vh to maxq*1.1.
-    local tset.
+    local tset to 0.
     if q < vl { set tset to 1. }
     if q > vl and q < vh { set tset to (vh-q)/(vh-vl). }
     if q > vh { set tset to 0. }
     
     // Output status
-    print "stage#: " + stage:number + " solidFuel: " + stage:solidfuel + "  " at (0,32).
-    print "liquidFuel: " + stage:liquidfuel + "  " at (20,32).
-    print "alt:radar: " + round(ar) + "  " at (0,33). 
-    print "throttle: " + round(tset,2) + "   " at (0,34).
+    print "stage#: " + stage:number + "    " at (0, 31).
+    print "solidFuel: " + stage:solidfuel + "    " at (0,32).
+    print "liquidFuel: " + stage:liquidfuel + "    " at (20,32).
+    print "alt:radar: " + round(ar) + "    " at (0,33). 
+    print "throttle: " + round(tset,2) + "     " at (0,34).
     print "apoapis: " + round(apoapsis/1000) at (0,35).
     print "periapis: " + round(periapsis/1000) at (20,35).
     
@@ -89,8 +91,8 @@ until altitude > ha or apoapsis > orbitAltitude {
 }
 
 // clear out status
+print "                   " at (0,31).
 print "                   " at (0,32).
-print "                   " at (20,32).
 print "                   " at (0,33).
 print "                   " at (20,33).
 print "                   " at (20,34).
@@ -108,8 +110,10 @@ if altitude < ha {
         // calculate target velocity
         if apoapsis >= orbitAltitude { set tset to 0. }
         if apoapsis < orbitAltitude { set tset to (orbitAltitude-apoapsis)/(orbitAltitude*0.01). }
-        print "stage#: " + stage:number + " solidFuel: " + stage:solidfuel at (0,32).
-        print "liquidFuel: " + stage:liquidfuel at (20,32).
+        
+        print "stage#: " + stage:number + "  " at (0, 31).
+        print "solidFuel: " + stage:solidfuel + "  " at (0,32).
+        print "liquidFuel: " + stage:liquidfuel + "  " at (20,32).
         print "throttle: " + round(tset,2) + "    " at (0,34).
         print "apoapis: " + round(apoapsis/1000,2) at (0,35).
         print "periapis: " + round(periapsis/1000,2) at (20,35).
@@ -117,6 +121,7 @@ if altitude < ha {
     }
 }
 
+print "                                        " at (0,31).
 print "                                        " at (0,32).
 print "                                        " at (0,33).
 print "                                        " at (0,34).

@@ -18,7 +18,7 @@ function setApoapsis {
 	print "T+" + round(missiontime) + " Set apoapsis maneuver, orbiting " + body:name.
 	print "T+" + round(missiontime) + " New apoapsis " + alt + "m".
 	print "T+" + round(missiontime) + " Current apoapsis: " + round(apoapsis/1000) + "km".
-	print "T+" + round(missiontime) + " Curent aeriapsis: " + round(periapsis/1000) + "km -> " + round (alt/1000) + "km".
+	print "T+" + round(missiontime) + " Curent periapsis: " + round(periapsis/1000) + "km -> " + round (alt/1000) + "km".
 
 	// output manouver parameters
 	local vom to velocity:orbit:mag.  				// actual velocity
@@ -35,10 +35,10 @@ function setApoapsis {
 	// setup node 
 	local deltav to v2 - va.
 	print "T+" + round(missiontime) + " Periapsis burn: " + round(va) + ", dv:" + round(deltav) + " -> " + round(v2) + "m/s".
-	declare nd to node(time:seconds + eta:periapsis, 0, 0, deltav).
+	local nd to node(time:seconds + eta:periapsis, 0, 0, deltav).
 	add nd.
 	print "T+" + round(missiontime) + " Node created.".
-	run x_executeNode.
+	run x_executenode.
 }
 
 // ----------------------------------------------------------------------------
@@ -52,14 +52,14 @@ function setPeriapsis {
 	print "T+" + round(missiontime) + " Set periapsis maneuver, orbiting " + body:name.
 	print "T+" + round(missiontime) + " New periapsis " + alt + "m".
 	print "T+" + round(missiontime) + " Current apoapsis: " + round(apoapsis/1000) + "km".
-	print "T+" + round(missiontime) + " Curent aeriapsis: " + round(periapsis/1000) + "km -> " + round (alt/1000) + "km".
+	print "T+" + round(missiontime) + " Curent periapsis: " + round(periapsis/1000) + "km -> " + round (alt/1000) + "km".
 
 	// present orbit properties
 	local vom to velocity:orbit:mag.  				// actual velocity
 	local r to rb + altitude.         				// actual distance to body
 	local ra to rb + apoapsis.        				// radius in apoapsis
 	local va to sqrt( vom^2 + 2*mu*(1/ra - 1/r) ).	// velocity in apoapsis
-	local a to (periapsis + 2*rb + apoapsis)/2. 		// semi major axis present orbit
+	local a to (periapsis + 2*rb + apoapsis)/2. 	// semi major axis present orbit
 
 	// future orbit properties
 	local r2 to rb + apoapsis.    					// distance after burn at apoapsis
@@ -74,5 +74,5 @@ function setPeriapsis {
 	add nd.
 
 	print "T+" + round(missiontime) + " Node created.".
-	run x_executeNode.
+	run x_executenode.
 }

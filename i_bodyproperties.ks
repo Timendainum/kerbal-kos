@@ -8,16 +8,17 @@
 global euler to 2.718281828.
 global pi to 3.1415926535.
 global b to body:name.
-global mu       // gravitational parameter, mu = G mass
-global rb       // radius of body [m]
-global bsoi      // sphere of influence [m]
-global ad0      // atmospheric density at msl [kg/m^3]
-global sh       // scale height (atmosphere) [m]
-global ha       // atmospheric height [m]
-global lorb     // low orbit altitude [m]
-global gt0      // grafity turn start
-global gt1      // gravity furn end
-global maxq     // max dynamic pressure q
+global mu to 0.     // gravitational parameter, mu = G mass
+global rb to 0.     // radius of body [m]
+global bsoi to 0.   // sphere of influence [m]
+global ad0 to 0.    // atmospheric density at msl [kg/m^3]
+global sh to 0.     // scale height (atmosphere) [m]
+global ha to 0.     // atmospheric height [m]
+global lorb to 0.   // low orbit altitude [m]
+global gt0 to 0.    // grafity turn start
+global gt1 to 0.    // gravity furn end
+global maxq to 0.   // max dynamic pressure q
+global soi to 0.    // radius of body sphere of influence
 
 if b = "Kerbin" {
     set mu to 3.5316000*10^12.
