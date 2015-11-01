@@ -3,6 +3,8 @@ KOS Scripts for Kerbal
 
 A set of misson scripts for Kerbal. I started with The Misson Toolkit v3 by Baloan. http://kos.wikia.com/wiki/Mission_toolkit_v3
 
+The idea is to expand and complete the start by Baloan and build a modular mission building kit.
+
 Naming convention:
 
 	f_ :   function: files that define functions
@@ -24,7 +26,3 @@ Included files:
 	x_lota(altitude)				: launches to specified altitude and circuilarizes 
 						  			  orbit
 	k1								: example launch script
-
-A set of misson scripts for Kerbal. I started with The Misson Toolkit v3 by Baloan.
-http://kos.wikia.com/wiki/Mission_toolkit_v3
-
