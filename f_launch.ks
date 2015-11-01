@@ -10,23 +10,25 @@
 // ----------------------------------------------------------------------------
 
 // ----------------------------------------------------------------------------
-// launchToOrbitAtmo(orbitAltitude, orbitHeading)
+// launchToOrbitAtmo(orbitAltitude, orbitInclination)
 // ----------------------------------------------------------------------------
 function launchToOrbitAtmo {
+    // ------------------------------------------------------------------------
     // arguments
     declare parameter orbitAltitude.
-    declare parameter orbitHeading.
+    declare parameter orbitInclination.
 
     clearscreen.
     print "Launch to orbit: " + time:calendar + ", " + time:clock.
-    print "Desired orbit: " + orbitAltitude + "m".
+    print "Desired orbit: " + orbitAltitude + "m at " + orbitInclination + " degrees".
 
 
-    // prelaunch ------------------------------------------------------------------
+    // prelaunch --------------------------------------------------------------
     print "Prelaunch sequence executing...".
     local tset to 1.
     lock throttle to tset. 
     lock steering to up + R(0, 0, -180).
+    local lazData to LAZcalc_init(orbitAltitude, orbitInclination).
 
     print "T-1 to launch...". 
 
@@ -37,7 +39,7 @@ function launchToOrbitAtmo {
         print "T+" + round(missiontime) + " Liftoff.".
     }
 
-    when alt:radar > gt0 then {
+    when alt:radar > gt0 and alt:radar > arramp then {
         print "T+" + round(missiontime) + " Beginning gravity turn.". 
     }
 
@@ -51,19 +53,20 @@ function launchToOrbitAtmo {
 
     until altitude > ha or apoapsis > orbitAltitude {
         local ar to alt:radar.
+        local heading to 90.
 
         // perform gravity turn between gt0 and gt1
         if ar > gt0 and ar < gt1 {
-            local arr to (ar - gt0) / (gt1 - gt0).
-            local pda to (cos(arr * 180) + 1) / 2.
-            set pitch to 90 * ( pda - 1 ).
-            lock steering to up + R(orbitHeading, pitch, -180).
-            print "pitch: " + round(90+pitch) + "  " at (20,33).
+            set pitch to max( 5, 90 * (1 - ALT:RADAR / 50000)).
+            set heading to LAZcalc(lazData).
+            lock steering to heading(heading, pitch).
+            print "heading: " + round(heading) + "  " at (20,31).
+            print "pitch: " + round(pitch) + "  " at (20,33).
         }
 
         // face orbital prograde after gravity turn
         if ar > gt1 {
-            lock steering to up + R(0, pitch, -180).
+            lock steering to prograde.
         }
 
         // throttle control
@@ -110,7 +113,7 @@ function launchToOrbitAtmo {
     // wait until out of atmo to prep for burn
     if altitude < ha {
         print "T+" + round(missiontime) + " Waiting to leave atmosphere".
-        lock steering to up + R(0, pitch, 0).       // roll for orbital orientation
+        lock steering to prograde.
         // thrust to compensate atmospheric drag losses
         until altitude > ha {
             // calculate target velocity
@@ -137,3 +140,99 @@ function launchToOrbitAtmo {
     // call setPeriapsis() to circurlize orbit
     setPeriapsis(orbitAltitude).
 }
+
+
+
+// ----------------------------------------------------------------------------
+// These functions stolen from:
+// https://raw.githubusercontent.com/KSP-KOS/KSLib/master/library/lib_lazcalc.ks
+//This file is distributed under the terms of the MIT license, (c) the KSLib team
+// ----------------------------------------------------------------------------
+
+// ----------------------------------------------------------------------------
+//=====LAUNCH AZIMUTH CALCULATOR=====
+//~~LIB_LAZcalc.ks~~
+//~~Version 2.1~~
+//~~Created by space-is-hard~~
+//~~Updated by TDW89~~
+//To use: RUN LAZcalc.ks. SET data TO LAZcalc_init([desired circular orbit altitude in meters],[desired orbital inclination; negative if launching from descending node, positive otherwise]). Then loop SET myAzimuth TO LAZcalc(data).
+// ----------------------------------------------------------------------------
+FUNCTION LAZcalc_init {
+    // ------------------------------------------------------------------------
+    // arguments
+    PARAMETER
+        desiredAlt, //Altitude of desired target orbit (in *meters*)
+        desiredInc. //Inclination of desired target orbit
+    
+    //We'll pull the latitude now so we aren't sampling it multiple times
+    LOCAL launchLatitude IS SHIP:LATITUDE.
+    
+    LOCAL data IS LIST().   // A list is used to store information used by LAZcalc
+    
+    //Orbital altitude can't be less than sea level
+    IF desiredAlt <= 0 {
+        PRINT "Target altitude cannot be below sea level".
+        SET launchAzimuth TO 1/0.       //Throws error
+    }.
+    
+    //Determines whether we're trying to launch from the ascending or descending node
+    LOCAL launchNode TO "Ascending".
+    IF desiredInc < 0 {
+        SET launchNode TO "Descending".
+        
+        //We'll make it positive for now and convert to southerly heading later
+        SET desiredInc TO ABS(desiredInc).
+    }.
+    
+    //Orbital inclination can't be less than launch latitude or greater than 180 - launch latitude
+    IF ABS(launchLatitude) > desiredInc {
+        SET desiredInc TO ABS(launchLatitude).
+        HUDTEXT("Inclination impossible from current latitude, setting for lowest possible inclination.", 10, 2, 30, RED, FALSE).
+    }.
+    
+    IF 180 - ABS(launchLatitude) < desiredInc {
+        SET desiredInc TO 180 - ABS(launchLatitude).
+        HUDTEXT("Inclination impossible from current latitude, setting for highest possible inclination.", 10, 2, 30, RED, FALSE).
+    }.
+    
+    //Does all the one time calculations and stores them in a list to help reduce the overhead or continuously updating
+    LOCAL equatorialVel IS (2 * CONSTANT():Pi * BODY:RADIUS) / BODY:ROTATIONPERIOD.
+    LOCAL targetOrbVel IS SQRT(BODY:MU/ (BODY:RADIUS + desiredAlt)).
+    data:ADD(desiredInc).       //[0]
+    data:ADD(launchLatitude).   //[1]
+    data:ADD(equatorialVel).    //[2]
+    data:ADD(targetOrbVel).     //[3]
+    data:ADD(launchNode).       //[4]
+    RETURN data.
+}.
+
+
+// ----------------------------------------------------------------------------
+// LAZcalc(data)
+// returns heading for launch inclination
+// ----------------------------------------------------------------------------
+FUNCTION LAZcalc {
+    PARAMETER
+        data. //pointer to the list created by LAZcalc_init
+    LOCAL inertialAzimuth IS ARCSIN(MAX(MIN(COS(data[0]) / COS(SHIP:LATITUDE), 1), -1)).
+    LOCAL VXRot IS data[3] * SIN(inertialAzimuth) - data[2] * COS(data[1]).
+    LOCAL VYRot IS data[3] * COS(inertialAzimuth).
+    
+    // This clamps the result to values between 0 and 360.
+    LOCAL Azimuth IS MOD(ARCTAN2(VXRot, VYRot) + 360, 360).
+    
+    //Returns northerly azimuth if launching from the ascending node
+    IF data[4] = "Ascending" {
+        RETURN Azimuth.
+        
+    //Returns southerly azimuth if launching from the descending node
+    } ELSE IF data[4] = "Descending" {
+        IF Azimuth <= 90 {
+            RETURN 180 - Azimuth.
+            
+        } ELSE IF Azimuth >= 270 {
+            RETURN 540 - Azimuth.
+            
+        }.
+    }.
+}.

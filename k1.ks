@@ -16,7 +16,8 @@ clearscreen.
 
 // ----------------------------------------------------------------------------
 // configuration variables
-set finalOrb to 75000.
+local finalOrb to 80000.
+local inclination to 25.0.
 
 // ----------------------------------------------------------------------------
 // staging control
@@ -58,7 +59,6 @@ if status = "PRELAUNCH"
             
             //Opens each antenna
             antenna:GETMODULE("ModuleRTAntenna"):DOACTION("Activate", TRUE).
-            
         }.
 
         // deploy solar panels
@@ -67,7 +67,7 @@ if status = "PRELAUNCH"
 	}
 
 	// execute launch script
-    launchToOrbitAtmo(finalOrb, 0).
+    launchToOrbitAtmo(finalOrb, inclination).
 }
 
 print "T+" + round(missiontime) + "Raising orbit to 100k.".

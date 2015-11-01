@@ -81,3 +81,31 @@ function setPeriapsis {
 	print "T+" + round(missiontime) + " Node created.".
 	executeNode(nd).
 }
+
+
+// ----------------------------------------------------------------------------
+// setInclination
+// ----------------------------------------------------------------------------
+function setInclination {
+	// ------------------------------------------------------------------------
+	// arguments
+	declare parameter inclination, longAscNode.
+
+	// precalulations
+	local currentInclination to orbit:inclination.
+	local deltaInclination to currentInclination - inclination.
+
+	// output starting parameters
+	print "T+" + round(missiontime) + " Inclination maneuver, orbiting " + body:name.
+	print "T+" + round(missiontime) + " New inclination: " + inclination.
+	print "T+" + round(missiontime) + " New longitude of ascending node: " + longAscNode.
+
+	// TODO: calculate when to burn, this should be done at the long of the asc node
+	// or the ascending or decending node
+
+	// TODO: calculate delta v need to change inclination
+	// TODO: velocity needs to be at the time of burn
+	local dVneeded to 2 * VELOCITY * sin(deltaInclination/2).
+	
+
+}
