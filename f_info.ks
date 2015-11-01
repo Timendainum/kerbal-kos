@@ -7,7 +7,7 @@
 @LAZYGLOBAL OFF.
 
 // ----------------------------------------------------------------------------
-// getSOI 
+// getSOI()
 // sets a variable called "soi" to the distance from the body that it's SOI is
 // ----------------------------------------------------------------------------
 function getSOI {

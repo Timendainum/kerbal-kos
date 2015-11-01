@@ -3,16 +3,19 @@
 // orbit changing related functions
 // requires:
 // 		i_bodyProperties
+//		f_navigate
 // 		x_executeNode
 // ----------------------------------------------------------------------------
 @LAZYGLOBAL OFF.
 
 // ----------------------------------------------------------------------------
-// setApoapsis
+// setApoapsis(alt)
 // This function adjusts the periapsis to specified altitude
 // ----------------------------------------------------------------------------
 function setApoapsis {
 	declare parameter alt.
+
+	cleanNodes().
 
 	// output manouver parameters
 	print "T+" + round(missiontime) + " Set apoapsis maneuver, orbiting " + body:name.
@@ -38,15 +41,17 @@ function setApoapsis {
 	local nd to node(time:seconds + eta:periapsis, 0, 0, deltav).
 	add nd.
 	print "T+" + round(missiontime) + " Node created.".
-	run x_executenode.
+	executeNode(nd).
 }
 
 // ----------------------------------------------------------------------------
-// setPeriapsis
+// setPeriapsis(alt)
 // This function adjusts the periapsis to specified altitude
 // ----------------------------------------------------------------------------
 function setPeriapsis {
 	declare parameter alt.
+
+	cleanNodes().
 
 	// output manouver parameters
 	print "T+" + round(missiontime) + " Set periapsis maneuver, orbiting " + body:name.
@@ -74,5 +79,5 @@ function setPeriapsis {
 	add nd.
 
 	print "T+" + round(missiontime) + " Node created.".
-	run x_executenode.
+	executeNode(nd).
 }

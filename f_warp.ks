@@ -154,6 +154,7 @@ function warpToDistance {
 // ----------------------------------------------------------------------------
 // warpToInSOI(tgtbody)
 // warps until in the SOI of tgtbody, re-runs i_bodyProperties when in SOI
+// ----------------------------------------------------------------------------
 function warpToInSOI {
 	declare parameter tgtbody.
 	// warp until leaving bodies' soi

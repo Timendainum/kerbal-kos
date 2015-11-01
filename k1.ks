@@ -5,6 +5,8 @@
 run i_bodyproperties.
 run f_equipment.
 run f_info.
+run f_launch.
+run f_navigate.
 run f_orbit.
 run f_steering.
 run f_warp.
@@ -14,7 +16,7 @@ clearscreen.
 
 // ----------------------------------------------------------------------------
 // configuration variables
-set finalOrb to 100000.
+set finalOrb to 75000.
 
 // ----------------------------------------------------------------------------
 // staging control
@@ -50,7 +52,7 @@ if status = "PRELAUNCH"
 
 	when radarAltitude > ha + 1000 then {
 		// deploy a1 antennas
-    	print "Deploying orbital antenna.".
+    	print "T+" + round(missiontime) + "Deploying orbital antenna.".
     	SET antennaList to SHIP:PARTSDUBBED("a1").
         FOR antenna IN antennaList {
             
@@ -60,18 +62,21 @@ if status = "PRELAUNCH"
         }.
 
         // deploy solar panels
-        print "Deploying solar panels.".
+        print "T+" + round(missiontime) + "Deploying solar panels.".
         PANELS ON.
 	}
 
 	// execute launch script
-    run x_ltoa(finalOrb, 0).
+    launchToOrbitAtmo(finalOrb, 0).
 }
 
+print "T+" + round(missiontime) + "Raising orbit to 100k.".
+run x_corbit(100000, 500).
+
+print "T+" + round(missiontime) + "Setting orbit mode.".
 turnToSun().
 
 set throttle to 0.
-
 SAS on.
 
 print "Mission script complete.".
