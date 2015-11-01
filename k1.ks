@@ -1,12 +1,22 @@
-// mission script for I1a Ionization Detection Mission
+// ----------------------------------------------------------------------------
+// mission script
+// ----------------------------------------------------------------------------
+// includes
+run i_bodyProperties.
+run f_equipment.
+run f_info.
+run f_orbit.
+run f_steering.
+run f_warp.
+// ----------------------------------------------------------------------------
 clearscreen.
 
-// sets up some standard variables
-run z_bodyprops.
 
+// ----------------------------------------------------------------------------
 // configuration variables
 set finalOrb to 100000.
 
+// ----------------------------------------------------------------------------
 // staging control
 if status = "PRELAUNCH" 
 {
@@ -32,8 +42,7 @@ if status = "PRELAUNCH"
 
 	// deploy orbital items
 	when alt:radar > ha then {
-    	print "Ejecting fairing...".
-		run z_deployfairings.
+		deployFairings().
 	}
 
 	when alt:radar > ha + 1000 then {
@@ -53,14 +62,9 @@ if status = "PRELAUNCH"
 	}
 
 	// execute launch script
-    run z_ltoa.
+    run z_ltoa(finalOrb).
 }
 
-// transfer to higher orbit
-print "Transfer to " + finalOrb + " orbit...".
-run z_aponode(finalOrb).
-run z_exenode.
-run z_aponode(finalOrb).
-run z_exenode.
+turnToSun().
 
 print "Mission script complete.".
