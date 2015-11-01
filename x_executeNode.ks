@@ -1,22 +1,29 @@
-//------------------------------------------------------
+// ----------------------------------------------------------------------------
 // execute maneuver node
 // compiled from the docs on github with a few tweaks
 // and bits stolen from other places
+// requires:
+//      f_warp
+// ----------------------------------------------------------------------------
+@LAZYGLOBAL OFF.
 
+// ----------------------------------------------------------------------------
 // Find the next node
-set nd to nextnode.
+local nd to nextnode.
 
+// ----------------------------------------------------------------------------
 // output node info
 print "T+" + round(missiontime) + " Node apoapsis: " + round(nd:orbit:apoapsis/1000,2) + "km, periapsis: " + round(nd:orbit:periapsis/1000,2) + "km".
 print "T+" + round(missiontime) + " Node in: " + round(nd:eta) + ", DeltaV: " + round(nd:deltav:mag).
 
-
-set maxAcceleration to ship:maxthrust/ship:mass.
-set burnDuration to nd:deltav:mag/maxAcceleration.
+// ----------------------------------------------------------------------------
+local maxAcceleration to ship:maxthrust/ship:mass.
+local burnDuration to nd:deltav:mag/maxAcceleration.
 print "T+" + round(missiontime) + " Max acc: " + round(maxAcceleration) + "m/s^2, Burn duration: " + round(burnDuration) + "s".
 
+// ----------------------------------------------------------------------------
 // warp to node
-run z_warpfor(nd:eta - burnDuration/2 - 60).
+warpFor(nd:eta - burnDuration/2 - 60).
 
 // turn ship to burn direction
 print "T+" + round(missiontime) + " Turning ship to burn direction.".
@@ -24,24 +31,24 @@ sas off.
 rcs off.
 
 // points to node, keeping roll the same.
-set np to lookdirup(nd:deltav, ship:facing:topvector). 
+local np to lookdirup(nd:deltav, ship:facing:topvector). 
 lock steering to np.
 
 // now we need to wait until the burn vector and ship's facing are aligned
 wait until abs(np:pitch - facing:pitch) < 0.15 and abs(np:yaw - facing:yaw) < 0.15.
 
 // warp until ready to burn
-run z_warpfor(nd:eta - burnDuration/2).
+warpFor(nd:eta - burnDuration/2).
 
 // Begin burn
 print "T+" + round(missiontime) + " burn start " + round(nd:eta) + "s before node.".
-set throttleSetting to 0.
+local throttleSetting to 0.
 lock throttle to throttleSetting.
 
 //control  burn
-set done to False.
-set once to True.
-set dv0 to nd:deltav.
+local done to False.
+local once to True.
+local dv0 to nd:deltav.
 until done {
 	// recalculate acceleration as we burn off fuel
     set maxAcceleration to ship:maxthrust/ship:mass.
@@ -81,5 +88,5 @@ print "T+" + round(missiontime) + " Fuel after burn: " + round(stage:liquidfuel)
 
 // wait a sec then delete the node
 wait 1.
-print "Removing node".
+print "T+" + round(missiontime) + "Removing node".
 remove nd.

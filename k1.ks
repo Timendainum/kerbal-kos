@@ -12,19 +12,13 @@ if status = "PRELAUNCH"
 {
 
 	// staging
-	when status <> "PRELAUNCH" and stage:solidfuel < 0.1 and stage:number = 4 then
-	{
-		print "T+" + round(missiontime) + " Booster staging 4.". 
-		stage.
-	}
-
 	when status <> "PRELAUNCH" and stage:solidfuel < 0.1 and stage:number = 3 then
 	{
 		print "T+" + round(missiontime) + " Booster staging 3.". 
 		stage.
 	}
 	
-	when status <> "PRELAUNCH" and stage:liquidfuel < 360.1 and stage:number = 2 then
+	when status <> "PRELAUNCH" and stage:liquidfuel < 0.1 and stage:number = 2 then
 	{
 		print "T+" + round(missiontime) + " Staging 2.". 
 		stage.
@@ -38,11 +32,11 @@ if status = "PRELAUNCH"
 
 	// deploy orbital items
 	when alt:radar > ha then {
-    	print "Exiting atmosphere...".
-
     	print "Ejecting fairing...".
 		run z_deployfairings.
+	}
 
+	when alt:radar > ha + 1000 then {
 		// deploy a1 antennas
     	print "Deploying orbital antenna.".
     	SET antennaList to SHIP:PARTSDUBBED("a1").
@@ -56,7 +50,6 @@ if status = "PRELAUNCH"
         // deploy solar panels
         print "Deploying solar panels.".
         PANELS ON.
-
 	}
 
 	// execute launch script
