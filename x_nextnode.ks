@@ -14,9 +14,5 @@
 run f_navigate.
 run f_warp.
 
-
-if anyNodes() = True {
-	local nd to nextnode.
-	executeNode(nd).	
-}
-
+local nd to nextnode.
+executeNode(nd).	

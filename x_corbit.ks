@@ -45,11 +45,7 @@ local function output {
 local function isDone {
 	 if abs(orbitEcError) < error and abs(orbitApError) < error and abs(orbitPeError) < error {
 	 	set done to True.
-	 	print "Done".
-	 } else {
-	 	print "Not done".
 	 }
-
 }
 
 // ----------------------------------------------------------------------------
@@ -65,10 +61,8 @@ until done = True {
 
 	if done = False {
 		if abs(orbitApError) > abs(orbitPeError) {
-			print "Ap".
 			setApoapsis(orbitAltitude).
 		} else {
-			print "Pe".
 			setPeriapsis(orbitAltitude).
 		}
 	}

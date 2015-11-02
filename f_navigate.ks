@@ -24,11 +24,13 @@ function cleanNodes {
 
 // ----------------------------------------------------------------------------
 // anyNodes()
+// this isn't working consistently
 // ----------------------------------------------------------------------------
 function anyNodes {
     local result to False.
-    local fNode to node(TIME:SECONDS + 9999999999999, 0, 0, 1).
+    local fNode to node(TIME:SECONDS + 999999999999, 0, 0, 1).
     add fNode.
+    wait 0.1.
     local nd to nextnode.
     until nd = fNode {
         set result to True.
@@ -132,4 +134,9 @@ function executeNode {
     wait 1.
     print "T+" + round(missiontime) + "Removing node".
     remove nd.
+}
+
+function etaToLongitude {
+    declare parameter longitude.
+   
 }
