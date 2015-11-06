@@ -39,5 +39,10 @@ executable files:
 Source material and inspiration:
 
 https://gist.github.com/KK4TEE/
-The Misson Toolkit v3 by Baloan: http://kos.wikia.com/wiki/Mission_toolkit_v3
-reddit.com/r/kos/
+
+The Misson Toolkit v3 by Baloan
+http://kos.wikia.com/wiki/Mission_toolkit_v3
+
+reddit.com/u/kos/
+reddit.com/u/Majromax
+reddit.com/u/G_Space/
