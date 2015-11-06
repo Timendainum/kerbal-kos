@@ -158,13 +158,13 @@ function warpToDistance {
 function warpToInSOI {
 	declare parameter tgtbody.
 	// warp until leaving bodies' soi
-	local soiflag to False.
-	getSOI(tgtbody).
+	local soiflag to false.
+	local soib to getSOI(tgtbody).
 	when body:name = tgtbody:name then {
 	    print "T+" + round(missiontime) + " Entered SOI of " + body:name.
 	    set soiflag to True.
 	}
-	warpToDistance(tgtbody, gSOI).
+	warpToDistance(tgtbody, soib).
 	wait until soiflag.
 	wait 1.
 	run i_bodyProperties.
@@ -176,15 +176,6 @@ function warpToInSOI {
 // warps until out of SOI of tgtbody
 // ----------------------------------------------------------------------------
 function warpToOutSOI {
-	declare parameter refbody, tgtbody.
-	// warp until leaving bodies' soi
-	local soiflag to False.
-	getSOI(refbody).
-	when body:name = tgtbody:name then {
-	    print "T+" + round(missiontime) + " Entered SOI of " + body:name.
-	    set soiflag to True.
-	}
-	warpToDistance(refbody, gSOI).
-	wait until soiflag.
-	wait 1.
+	// TODO: Reimplement this
+	print "* * * * * * *FUNCTION NOT IMPLEMENTED! warpToOutSOI(tgtbody)".
 }

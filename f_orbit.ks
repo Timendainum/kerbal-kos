@@ -77,89 +77,6 @@ function setPeriapsis {
 	executeNode(nd).
 }
 
-
-// ----------------------------------------------------------------------------
-// setInclination
-// ----------------------------------------------------------------------------
-function setInclinationX {
-	// ------------------------------------------------------------------------
-	// arguments
-	declare parameter inclination.
-	//declare parameter longAscNode.
-
-	// declarations
-	local orbit to ship:obt.
-	local currentInclination to orbit:inclination.
-	//You can get the True Anomaly, Eccentricity, Semi-Major Axis, Mean Anomaly,
-	// and Orbital Period from kOS. Then you will need these two pieces of information	
-	local orbitalPeriod to orbit:period.					// P: Orbital Period
-	local meanAnomalyCurrent to orbit:MEANANOMALYATEPOCH.	// M: Mean Anomaly (Current)
-	local eccentricity to orbit:ECCENTRICITY.				// e: Eccentricity
-	local trueAnomoly to orbit:TRUEANOMALY.					// theta: True Anomaly
-	local semiMajorAxis to orbit:semimajoraxis.				// a: Semi-Major Axis
-
-	// precalulations
-	local deltaInclination to currentInclination - inclination.
-	if deltaInclination < -180 {
-		set deltaInclination to deltaInclination + 360.
-	}
-
-	// output starting parameters
-	print "T+" + round(missiontime) + " Inclination maneuver, orbiting " + body:name.
-	print "T+" + round(missiontime) + " New inclination: " + inclination.
-	//print "T+" + round(missiontime) + " New longitude of ascending node: " + longAscNode.
-	print "T+" + round(missiontime) + " Current inclination: " + currentInclination.
-	print "T+" + round(missiontime) + " Orbital Period: " + orbitalPeriod.
-	print "T+" + round(missiontime) + " Mean Anomaly: " + meanAnomalyCurrent.
-	print "T+" + round(missiontime) + " Ecentricity: " + eccentricity.
-	print "T+" + round(missiontime) + " Semi-major Axis: " + semiMajorAxis.
-
-	// ------------------------------------------------------------------------
-	// calculate when to burn, this should be done at the long of the asc node
-	// or the ascending or decending node
-
-	// determine mean anomoly
-	// To find the time to each of these nodes you will determine if the True Anomaly falls within these two categories.
-	// if theta > 270 (remember max is 360, then resets to 0) AND theta < 90 { Use M1}
-	// if theta > 90 AND theta < 270 { Use M2 }
-	local meanAnomoly to 0.
-	if trueAnomoly > 270 {
-		// M1 = Mean Anomaly of First Node (wether its ascending or descending depends on inclination) = pi/2 - e
-		set meanAnomoly to pi/2 - eccentricity.
-	} else {
-		// M2 = Mean Anomaly of Second Node (this will be the opposite of the first node) = 3*pi/2 - e
-		set meanAnomoly to 3 * pi / 2 - eccentricity.
-	}
-
-	print "T+" + round(missiontime) + " Mean Anomaly: " + meanAnomoly.
-
-	// ------------------------------------------------------------------------
-	// determine eta - you use this formula to figure out the time:
-	local meanNotion to 2 * pi / orbitalPeriod.		// n : Mean Notion = 2*pi/P
-
-	print "T+" + round(missiontime) + " Mean Notion: " + meanNotion.
-
-	//t = Time to Next Node = (Mx - M)/n (Mx is either M1 or M2 depending on where you are on the orbit)
-	local nodeETA to (meanAnomoly - meanAnomalyCurrent) / meanNotion.
-	
-	print "T+" + round(missiontime) + " Node ETA: " + nodeETA.
-
-	// get velocity vector at ETA time
-
-	// ------------------------------------------------------------------------
-	// calculate delta v need to change inclination
-	local deltav to 2 * shipVelocity * sin(deltaInclination/2).
-
-	print "T+" + round(missiontime) + " dV: " + deltav.
-
-	// create node
-	local nd to node(time:seconds + nodeETA, deltav:x, deltav:y, deltav:z).
-	add nd.
-
-	// TODO: execute node
-}
-
-
 // ----------------------------------------------------------------------------
 // setInclination(id)
 // Attempts to adjust the inclination of the current orbit to the desired angle
@@ -170,9 +87,12 @@ function setInclinationX {
 function setInclination {
 	declare parameter id. // inclination desired
 
+	// nodeEta needs to not be using apoapsis for change point, this needs to be at an or dn.
+	// which I cannot compute at this time.
+
 	// gather infos
-	local ApEta to eta:apoapsis.					// ETA Apoapsis
-	local ApTime to ApEta + time:seconds.			// Apoapsis time
+	local nodeEta to eta:apoapsis.					// ETA to burn node
+	local ApTime to nodeEta + time:seconds.			// Apoapsis time
 	local o to orbitat(ship, ApTime).				// ship orbit
 	local ii to o:inclination.						// initial inclination
 	local e to o:eccentricity.						// eccentricity
@@ -181,68 +101,113 @@ function setInclination {
 	local oP to o:period.							// orbit period
 	local n to calcMeanMotion(oP).					// mean motion calclation
 	local a to o:semimajoraxis.						// semi major axis.
-	local di to ii - id.
+	local di to ii - id.							// difference in inclination
 	if di < -180 {
 		set di to di + 360.
 	}
 
-	print "T+" + round(missiontime) + " di: " + di.	// difference in inclination
+	print "T+" + round(missiontime) + " di: " + di.
 
 	local top to 2 * sin(di/2) * sqrt(1 - e*e) * cos(w + f) * n * a.
 	local bottom to 1 + e * cos(f).
 	local dV to top / bottom.
 
 	print "T+" + round(missiontime) + " Result dV: " + dV.
-	//local nd to node(ApTime, 0, dV, 0).
-	//add nd.
-	// executeNode(nd).
-}
-
-// ----------------------------------------------------------------------------
-// getETAToLongitude
-// returns the eta in the current orbit to a speicifc longitude
-// ----------------------------------------------------------------------------
-function getETAToLongitude {
-	// prediction functions will help here
-	// http://ksp-kos.github.io/KOS_DOC/commands/prediction.html
+	// TODO: Burn Direction is not worked out yet, I shoulld be burning normal
+	// at the ascending node and anti-normal at decending to raise the inclination.
+	// Opposite to lower it.
+	local nd to node(ApTime, 0, dV, 0).
+	add nd.
+	executeNode(nd).
 }
 
 
-// ----------------------------------------------------------------------------
-// getSpeedByRA(r,a)
-// returns orbit velocity given orbital altitude and semi-major axis
-// Give altitude above sea level, function will add body radius
-// ----------------------------------------------------------------------------
-function getSpeedByRA {
-	// orbital altitude, we will add body radius
-	declare parameter r.
-	// semi-major axis
-	declare parameter a.
 
-	local r1 to r + rb.
+  function eta_true_anom {
+    declare local parameter tgt_lng.
+    // convert the positon from reference to deg from PE (which is the true anomaly)
+    LOCAL ship_ref to mod(obt:lan+obt:argumentofperiapsis+obt:trueanomaly,360).
+    local angle to mod((720 + tgt_lng - ship_ref),360).
+    local node_true_anom to OBT:TRUEANOMALY + angle.
+    local node_eta to 0.
+    local ecc to OBT:ECCENTRICITY.
+if ecc < 0.001 {
+        set node_eta to SHIP:OBT:PERIOD * ((mod(tgt_lng - ship_ref + 360,360))) / 360.
+} else {
 
-	// calculate and return value
-	return sqrt(mu * ( (2/r1) - (1/a) )).
+        local eccentric_anomaly to arccos((ecc+cos(node_true_anom))/(1+  ecc* cos(node_true_anom))).
+        local mean_anom to (eccentric_anomaly - ((180 / (constant():pi)) * (ecc * sin(eccentric_anomaly)))).
+
+       // time from periapsis to point
+        local time_2_anom to  SHIP:OBT:PERIOD * mean_anom /360.
+
+        local my_time_in_orbit to ((OBT:MEANANOMALYATEPOCH)*OBT:PERIOD /360).
+        set node_eta to mod(OBT:PERIOD + time_2_anom - my_time_in_orbit,OBT:PERIOD) .
+     }
+    return node_eta.
 }
 
+ function set_inc_lan {
+    DECLARE PARAMETER incl_t.
+    DECLARE PARAMETER lan_t.
+    print " ".
+    local incl_i to SHIP:OBT:INCLINATION.
+    local lan_i to SHIP:OBT:LAN. 
 
-// ----------------------------------------------------------------------------
-// calcOrbitBTDeltaVDiff(dVi,dVf)
-// For more complicated maneuvers which may involve a combination of change
-// in inclination and orbital radius, the amount of delta v is the vector
-// difference between the velocity vectors of the initial orbit and the desired
-// orbit at the transfer point.
-// ----------------------------------------------------------------------------
-function calcOrbitBTDeltaVDiff {
-	return dV1 - dVf.
+// setup the vectors to highest latitude; Transform spherical to cubic coordinates.
+    local Va to V(sin(incl_i)*cos(lan_i+90),sin(incl_i)*sin(lan_i+90),cos(incl_i)).
+    local Vb to V(sin(incl_t)*cos(lan_t+90),sin(incl_t)*sin(lan_t+90),cos(incl_t)).
+// important to use the reverse order
+    local Vc to VCRS(Vb,Va).
+
+    local dv_factor to 1.
+    //compute burn_point and set to the range of [0,360]
+    local node_lng to mod(arctan2(Vc:Y,Vc:X)+360,360).
+
+    local ship_ref to mod(obt:lan+obt:argumentofperiapsis+obt:trueanomaly,360).
+    ´local ship_2_node to mod((720 + node_lng - ship_ref),360).
+//  print "ship_2_node:   " + round (ship_2_node,1).
+    if ship_2_node > 180 {
+        print "Switching to DN".
+        set node_lng to mod(node_lng + 180,360).
+    }       
+
+    local angle_to_lan to abs(180 + node_lng - OBT:LAN).
+ // print "angle_to_lan:   " + round (angle_to_lan,1).  
+    // we are at the DN side, dV be reverse.    
+    if  angle_to_lan > 90 {
+        print "Switching burn direction".
+        set dv_factor to -1.
+    }
+
+
+
+    //local angle to mod((720 + node_lng - ship_ref),360).
+    //local node_true_anom to mod(OBT:TRUEANOMALY + angle,360).
+
+    //local ecc to OBT:ECCENTRICITY.
+    //local my_radius to OBT:SEMIMAJORAXIS * (( 1 - ecc^2)/ (1 + ecc*cos(node_true_anom)) ).
+    //local my_speed to sqrt(SHIP:BODY:MU * ((2/my_radius) - (1/OBT:SEMIMAJORAXIS)) ).
+    //print "my_speed:   " + my_speed.      LOCAL node_eta to eta_true_anom(node_lng).
+
+local node_eta to eta_true_anom(node_lng).
+    local my_speed to VELOCITYAT(SHIP, time+node_eta):ORBIT:MAG.   
+    local d_inc to arccos (vdot(Vb,Va) ).
+    print "Delta incl: " + round(d_inc,2).
+    local dvtgt to dv_factor* (2 * (my_speed) * SIN(d_inc/2)).
+
+    print "inc_Burn dV: " + round(dvtgt,2).
+    print "Node LNG: " + round(node_lng,1).
+    print "inc_Burn ETA: " + round(node_eta,2). 
+
+    // Create a blank node
+    LOCAL inc_node TO NODE(node_eta, 0, 0, 0).
+    // we need to split our dV to normal and prograde
+    SET inc_node:NORMAL TO dvtgt * cos(d_inc/2).
+    // always burn retrograde
+    SET inc_node:PROGRADE TO 0 - abs(dvtgt * sin(d_inc/2)).
+    SET inc_node:ETA TO node_eta.
+
+    ADD inc_node.
+
 }
-
-// ----------------------------------------------------------------------------
-// calcMeanMotion(oP)
-// Returns mean motion (n) based on given orbital period.
-// ----------------------------------------------------------------------------
-function calcMeanMotion {
-	declare parameter oP.		// orbit period
-	return 2 * pi / oP.			// mean motion calclation
-}
-

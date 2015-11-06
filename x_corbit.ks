@@ -3,6 +3,8 @@
 // sets a circular orbit to the altitude specified within the specified error
 // requires:
 //      i_bodyProperties
+//		f_navigate
+//		f_node
 //      f_orbit
 //      f_warp
 // ----------------------------------------------------------------------------
@@ -14,8 +16,9 @@ declare parameter orbitAltitude, error.
 // ----------------------------------------------------------------------------
 // includes
 run i_bodyProperties.
-run f_orbit.
 run f_navigate.
+run f_node.
+run f_orbit.
 run f_warp.
 
 // ----------------------------------------------------------------------------

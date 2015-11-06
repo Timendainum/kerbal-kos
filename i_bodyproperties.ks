@@ -19,6 +19,7 @@ global gt0 to 0.    // grafity turn start
 global gt1 to 0.    // gravity furn end
 global maxq to 0.   // max dynamic pressure q
 global soi to 0.    // radius of body sphere of influence
+global ksc to 0.    // ksc lat lng
 
 if b = "Kerbin" {
     set mu to 3.5316000*10^12.
@@ -33,6 +34,7 @@ if b = "Kerbin" {
     set gt0 to 10000.
     set gt1 to 50000.
     set maxq to 7000.
+    set ksc to latlng(-0.0972092543643722, -74.557706433623).
 }
 
 if b = "Mun" {

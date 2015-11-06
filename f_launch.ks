@@ -18,13 +18,12 @@ function launchToOrbitAtmo {
     declare parameter orbitAltitude.
     declare parameter orbitInclination.
 
-    clearscreen.
-    print "Launch to orbit: " + time:calendar + ", " + time:clock.
-    print "Desired orbit: " + orbitAltitude + "m at " + orbitInclination + " degrees".
+    printT("Launch to orbit: " + time:calendar + ", " + time:clock).
+    printT("Desired orbit: " + orbitAltitude + "m at " + orbitInclination + " degrees").
 
 
     // prelaunch --------------------------------------------------------------
-    print "Prelaunch sequence executing...".
+    printT("Prelaunch sequence executing...").
     local tset to 1.
     lock throttle to tset. 
     lock steering to up + R(0, 0, -180).
