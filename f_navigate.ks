@@ -13,12 +13,14 @@
 // ----------------------------------------------------------------------------
 // ----------------------------------------------------------------------------
 
-function clampHeading {
+function clampHeading
+{
     declare parameter heading.
 
     local result to 0.
     
-    if heading > 360 {
+    if heading > 360 
+    {
         set result to heading - 360.
     } else if heading < 0 {
         set result to heading + 360.
@@ -33,7 +35,8 @@ function clampHeading {
 // getOppositeLongitude
 // returns the the opposite longitude
 // ----------------------------------------------------------------------------
-function getETAToLongitude {
+function getETAToLongitude
+{
     declare parameter l.
 
     if l < 0 {
@@ -53,7 +56,8 @@ function getETAToLongitude {
 // getSOI(bd)
 // returns the distance from the body that it's SOI is
 // ----------------------------------------------------------------------------
-function getSOI {
+function getSOI
+{
     declare parameter bd.
     // parameter type: body
     local sma to (bd:apoapsis + 2*bd:body:radius + bd:periapsis)/2.
@@ -69,7 +73,8 @@ function getSOI {
 // This should make it possible to find any point on an orbit based on 
 // longitude
 // ----------------------------------------------------------------------------
-function getETATrueAnomaly {
+function getETATrueAnomaly
+{
     declare local parameter tgt_lng.
     // convert the positon from reference to deg from PE (which is the true anomaly)
     LOCAL ship_ref to mod(obt:lan+obt:argumentofperiapsis+obt:trueanomaly,360).

@@ -127,7 +127,7 @@ function setInclinationAndLAN {
 	DECLARE PARAMETER incl_t.
 	DECLARE PARAMETER lan_t.
 
-	printT("Setting inclination to " + inc_t + " at " + lan_t).
+	printT("Setting inclination to " + incl_t + " at " + lan_t).
 
 	local incl_i to SHIP:OBT:INCLINATION.
 	local lan_i to SHIP:OBT:LAN.
@@ -140,7 +140,7 @@ function setInclinationAndLAN {
 	local Vc to VCRS(Vb,Va).
 
 	local dv_factor to 1.
-	//compute burn_point and set to the range of [0,360]
+	// compute burn_point and set to the range of [0,360]
 	local node_lng to mod(arctan2(Vc:Y,Vc:X)+360,360).
 
 	local ship_ref to mod(obt:lan+obt:argumentofperiapsis+obt:trueanomaly,360).
@@ -157,23 +157,22 @@ function setInclinationAndLAN {
 	// print "angle_to_lan:   " + round (angle_to_lan,1).  
 	// we are at the DN side, dV be reverse.    
 	if  angle_to_lan > 90 {
-		print "Switching burn direction".
 		set dv_factor to -1.
 	}
 
-	//local my_radius to OBT:SEMIMAJORAXIS * (( 1 - ecc^2)/ (1 + ecc*cos(node_true_anom)) ).
-	//local my_speed to sqrt(SHIP:BODY:MU * ((2/my_radius) - (1/OBT:SEMIMAJORAXIS)) ).
-	//print "my_speed:   " + my_speed.      LOCAL node_eta to eta_true_anom(node_lng).
+	// local my_radius to OBT:SEMIMAJORAXIS * (( 1 - ecc^2)/ (1 + ecc*cos(node_true_anom)) ).
+	// local my_speed to sqrt(SHIP:BODY:MU * ((2/my_radius) - (1/OBT:SEMIMAJORAXIS)) ).
+	// print "my_speed:   " + my_speed.      LOCAL node_eta to eta_true_anom(node_lng).
 
-	local node_eta to eta_true_anom(node_lng).
+	local node_eta to getETATrueAnomaly(node_lng).
 	local my_speed to VELOCITYAT(SHIP, time+node_eta):ORBIT:MAG.   
 	local d_inc to arccos (vdot(Vb,Va) ).
-	print "Delta incl: " + round(d_inc,2).
+	// print "Delta incl: " + round(d_inc,2).
 	local dvtgt to dv_factor* (2 * (my_speed) * SIN(d_inc/2)).
 
-	print "inc_Burn dV: " + round(dvtgt,2).
-	print "Node LNG: " + round(node_lng,1).
-	print "inc_Burn ETA: " + round(node_eta,2). 
+	// print "inc_Burn dV: " + round(dvtgt,2).
+	// print "Node LNG: " + round(node_lng,1).
+	// print "inc_Burn ETA: " + round(node_eta,2). 
 
 	// Create a blank node
 	LOCAL inc_node TO NODE(node_eta, 0, 0, 0).

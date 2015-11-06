@@ -18,7 +18,7 @@ run f_warp.
 // ----------------------------------------------------------------------------
 // configuration variables
 local initialOrbit to 80000.
-local finalOrbit to 80000.
+local finalOrbit to 100000.
 local orbitError to 1000.
 local inclination to -63.4.
 local antennaList to getAntennaList().
@@ -99,4 +99,7 @@ turnToSun().
 set throttle to 0.
 SAS on.
 
-printT("Launch script complete.").
+printT("Launch complete.").
+
+printT("Adjusting Inclination.").
+setInclinationAndLAN(63.4, 105.9).
