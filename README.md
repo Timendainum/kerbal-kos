@@ -21,10 +21,12 @@ function files:
 	f_steering						: steering related functions
 	f_warp							: warping functions
 
-include files:	
+include files:
+
 	i_bodyproperties				: sets up values for astronomical bodies
 
 executable files:
+
 	x_corbit(orbitAltitude, error)	: transfers craft into orbit specified
 	x_dokp							: deorbit into Kerbin with parachutes
 									  attempts to land near KSC
